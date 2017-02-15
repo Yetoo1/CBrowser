@@ -1,4 +1,5 @@
 /*compile with gcc `pkg-config --cflags gtk+-3.0` -o main main.c `pkg-config --libs gtk+-3.0` -ltidy -lcurl*/
+//first this needs to get created then the modularity can begin in a new form
 #include <gtk/gtk.h>
 #include <tidy/tidy.h>
 #include <tidy/buffio.h>
@@ -14,9 +15,17 @@ uint write_cb(char *in, uint size, uint nmemb, TidyBuffer *out)
   return r;
 }
 /* Traverse the document tree */ 
-void dumpNode(TidyDoc doc, TidyNode tnod, int indent)
+void dumpNode(TidyDoc doc, TidyNode tnod, int indent) //probably need a struct or some shit for the widgets, I really don't know
 {
-	//add the calls to read_shit()
+ 	//GtkWidget *view, *grid;
+ 	//GtkTextBuffer *buffer;
+	//grid = gtk_grid_new();
+	//gtk_container_add(GTK_CONTAINER(window),grid);
+	//view = gtk_text_view_new();
+	//buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+	//gtk_text_buffer_set_text(buffer, "fucking test", -1);
+        //gtk_grid_attach(GTK_GRID(grid), view, 1,3,1,1);
+
   TidyNode child;
   for(child = tidyGetChild(tnod); child; child = tidyGetNext(child) ) {
     ctmbstr name = tidyNodeGetName(child);
@@ -44,11 +53,12 @@ void dumpNode(TidyDoc doc, TidyNode tnod, int indent)
   }
 }
 
-static void read_shit(/*Add the shit here according to the shit in the function above so like shit can be done n shit*/)
-{
-	GtkWidget *widget;
-	//this shit reads the output of the curl shit, so like in the function above dumpNode, every instance of output will be instead calling to here so that it can output to the screen, now look, I could have the shuits set up over in that function so that it can be less functions and less clutter, but just incase I want to make this shit more consise, even though I am probably making it worse
-}
+//static void read_shit(char* shit)
+//{
+//	GtkWidget *widget;
+//	printf()
+//	//this shit reads the output of the curl shit, so like in the function above dumpNode, every instance of output will be instead calling to here so that it can output to the screen, now look, I could have the shuits set up over in that function so that it can be less functions and less clutter, but just incase I want to make this shit more consise, even though I am probably making it worse
+//}
 static void do_shit(GtkWidget * widget, GtkWidget *entry)
 {
   const gchar *entry_text;
@@ -106,8 +116,9 @@ activate (GtkApplication* app,
 {
 	const gchar *text;
  	const gchar *texto;
-	GtkWidget *window, *grid, *label, *button, *entry;
-  	window = gtk_application_window_new (app);
+	GtkWidget *window, *grid, *label, *button, *entry, *view;
+  	GtkTextBuffer *buffer;
+	window = gtk_application_window_new (app);
   	gtk_window_set_title (GTK_WINDOW (window), "Window");
   	gtk_window_set_default_size (GTK_WINDOW (window), 400, 400);
   
@@ -131,6 +142,12 @@ activate (GtkApplication* app,
 	button = gtk_button_new_with_label("Enter");
 	g_signal_connect(button, "clicked", G_CALLBACK(do_shit), entry);
 	gtk_grid_attach(GTK_GRID(grid), button, 1, 2, 1, 1);
+	
+	
+	view = gtk_text_view_new();
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+	gtk_text_buffer_set_text(buffer, "fuck man, this shit better work", -1);
+	gtk_grid_attach(GTK_GRID(grid), view, 1,3,1,1);
 		
 
 	gtk_widget_show_all (window);
