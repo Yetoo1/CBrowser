@@ -6,6 +6,10 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <stdio.h>
+typedef struct gridntext
+{
+	GtkWidget *grid, *view;
+} vg;
 /* curl write callback, to fill tidy's input buffer...  */ 
 uint write_cb(char *in, uint size, uint nmemb, TidyBuffer *out)
 {
