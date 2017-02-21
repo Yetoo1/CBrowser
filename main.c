@@ -6,10 +6,12 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <stdio.h>
-typedef struct gridntext
+typedef struct 
 {
 	GtkWidget *grid, *view;
-} vg;
+	GtkTextBuffer *buffer;
+} gridntext;
+static gridntext vg;
 /* curl write callback, to fill tidy's input buffer...  */ 
 uint write_cb(char *in, uint size, uint nmemb, TidyBuffer *out)
 {
@@ -18,6 +20,15 @@ uint write_cb(char *in, uint size, uint nmemb, TidyBuffer *out)
   tidyBufAppend(out, in, r);
   return r;
 }
+
+static void display()
+{
+	vg.view = gtk_text_view_new();
+    	vg.buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(vg.view));
+        gtk_text_buffer_set_text(vg.buffer, "fuck man, this shit better work", -1);
+        gtk_grid_attach(GTK_GRID(vg.grid), vg.view, 1,5,1,1);
+}
+
 /* Traverse the document tree */ 
 void dumpNode(TidyDoc doc, TidyNode tnod, int indent) //probably need a struct or some shit for the widgets, I really don't know
 {
@@ -29,7 +40,12 @@ void dumpNode(TidyDoc doc, TidyNode tnod, int indent) //probably need a struct o
 	//buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
 	//gtk_text_buffer_set_text(buffer, "fucking test", -1);
         //gtk_grid_attach(GTK_GRID(grid), view, 1,3,1,1);
-
+	
+	//vg.view = gtk_text_view_new();
+	//vg.buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(vg.view));
+	//gtk_text_buffer_set_text(vg.buffer, "fuck man, this shit better work", -1);
+	//gtk_grid_attach(GTK_GRID(vg.grid), vg.view, 1,3,1,1);
+	//vg.asd = "asd";
   TidyNode child;
   for(child = tidyGetChild(tnod); child; child = tidyGetNext(child) ) {
     ctmbstr name = tidyNodeGetName(child);
@@ -56,18 +72,11 @@ void dumpNode(TidyDoc doc, TidyNode tnod, int indent) //probably need a struct o
     dumpNode(doc, child, indent + 4); /* recursive */ 
   }
 }
-
-//static void read_shit(char* shit)
-//{
-//	GtkWidget *widget;
-//	printf()
-//	//this shit reads the output of the curl shit, so like in the function above dumpNode, every instance of output will be instead calling to here so that it can output to the screen, now look, I could have the shuits set up over in that function so that it can be less functions and less clutter, but just incase I want to make this shit more consise, even though I am probably making it worse
-//}
 static void do_shit(GtkWidget * widget, GtkWidget *entry)
 {
   const gchar *entry_text;
   entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
-  g_print("%s\n", entry_text);
+  //g_print("%s\n", entry_text);
   CURL *curl;
   char curl_errbuf[CURL_ERROR_SIZE];
   TidyDoc tdoc;
@@ -120,40 +129,45 @@ activate (GtkApplication* app,
 {
 	const gchar *text;
  	const gchar *texto;
-	GtkWidget *window, *grid, *label, *button, *entry, *view;
-  	GtkTextBuffer *buffer;
+	GtkWidget *window, *label, *button, *entry;
+  	//GtkTextBuffer *buffer;
 	window = gtk_application_window_new (app);
   	gtk_window_set_title (GTK_WINDOW (window), "Window");
   	gtk_window_set_default_size (GTK_WINDOW (window), 400, 400);
   
 	/* Create a 1x2 table */
-	grid = gtk_grid_new();
-	gtk_container_add(GTK_CONTAINER (window), grid);
+	vg.grid = gtk_grid_new();
+	gtk_container_add(GTK_CONTAINER (window), vg.grid);
 	//left, right, up , down
 	//tell the user what to do (bad philosophy if you want the user to feel at home, unless you want them to feel infantile)
 	label = gtk_label_new("Enter the url:");
-	gtk_grid_attach(GTK_GRID(grid), label, 0, 1, 1, 1);
-
+	gtk_grid_attach(GTK_GRID(vg.grid), label, 0, 1, 1, 1);
 	entry = gtk_entry_new();
 	//find a way to get the text in here to be appended to the yeah shit
 	//texto = gtk_entry_buffer_get_text(gtk_entry_buffer_new(text, 10));
 	//g_print("%c", texto);
 	//gtk_entry_set_max_length(GTK_ENTRY(entry), 50);
 	g_signal_connect(entry, "activate", G_CALLBACK (do_shit), entry); /*when enter is pressed, shit is sent */
-	gtk_grid_attach(GTK_GRID(grid), entry, 1, 1, 1, 1);
-	
+	gtk_grid_attach(GTK_GRID(vg.grid), entry, 1, 1, 1, 1);
 	//this does the same thing as enter but in button form
 	button = gtk_button_new_with_label("Enter");
 	g_signal_connect(button, "clicked", G_CALLBACK(do_shit), entry);
-	gtk_grid_attach(GTK_GRID(grid), button, 1, 2, 1, 1);
-	
-	
-	view = gtk_text_view_new();
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
-	gtk_text_buffer_set_text(buffer, "fuck man, this shit better work", -1);
-	gtk_grid_attach(GTK_GRID(grid), view, 1,3,1,1);
-		
+	gtk_grid_attach(GTK_GRID(vg.grid), button, 1,2,1,1);
 
+	button = gtk_button_new_with_label("Test");
+	
+	g_signal_connect(button, "clicked", G_CALLBACK(display), vg.view);
+	gtk_grid_attach(GTK_GRID(vg.grid), button, 1, 4, 1, 1);
+	
+	
+	
+	//vg.view = gtk_text_view_new();
+	//vg.buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(vg.view));
+	//gtk_text_buffer_set_text(vg.buffer, "fuck man, this shit better work", -1);
+	//gtk_text_buffer_set_text(vg.buffer, vg.entry_text, -1);
+	//gtk_grid_attach(GTK_GRID(vg.grid), vg.view, 1,3,1,1);
+	display();
+	
 	gtk_widget_show_all (window);
 }
 
@@ -167,6 +181,6 @@ main (int    argc,  char **argv)
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
   status = g_application_run (G_APPLICATION (app), argc, argv);
   g_object_unref (app);
-
+	
   return status;
 }
